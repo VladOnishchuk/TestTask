@@ -47,7 +47,6 @@ class MenuUploadView(APIView):
             menu = serializers.MenuUploadSerializer(data=item)
             if menu.is_valid():
                 menu.save()
-                print("Good")
         return Response(status=201)
 
 
