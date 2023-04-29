@@ -3,4 +3,5 @@
 python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic --noinput --clear
+pytest apps/restaurant/tests/
 python manage.py runserver
