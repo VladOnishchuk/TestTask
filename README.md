@@ -4,7 +4,7 @@
     ```sh
     $ git clone git@github.com:VladOnishchuk/TestTask.git
     ```
-2. Populate env.example file and rename it on .env
+2. Populate env.example and end.db.example files and rename it on .env and .env.db
 3. Build and run containers by command:
     ```sh
     $ make build 
