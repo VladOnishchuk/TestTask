@@ -9,4 +9,10 @@
     ```sh
     $ make build 
     ```
-For test API you can use swagger doc
+## To get started
+By url http://0.0.0.0:8000/swagger/ there is swagger doc.
+
+You have to create new user by /auth/users/ endpoint and then create jwt token for it by /auth/jwt/create/ endpoint.
+After got response from /auth/jwt/create/ copied access token and open Postman.
+In the tab Authorization choose type "Bearer Token" and paste access token from API.
+Now you have access for endpoints.

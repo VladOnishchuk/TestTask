@@ -7,15 +7,19 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from apps.restaurant.models import Restaurant, Menu
+
+
 @pytest.mark.django_db
 @pytest.fixture
 def user(db):
     return User.objects.create_user(username='testuser', password='testpass')
 
+
 @pytest.mark.django_db
 @pytest.fixture
 def restaurant(user, db):
     return Restaurant.objects.create(title='Test Restaurant', rating='5', creator=user)
+
 
 @pytest.mark.django_db
 @pytest.fixture
@@ -27,7 +31,6 @@ def menu(restaurant, db):
         count_of_votes=0,
         price=100
     )
-
 
 
 @pytest.fixture
@@ -68,7 +71,6 @@ def test_retrieve_menu(api_client, menu):
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data['title'] == menu.title
-
 
 
 def test_get_today_menus(api_client, menu):

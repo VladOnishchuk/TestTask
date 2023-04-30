@@ -1,9 +1,10 @@
 import datetime
 
-from rest_framework.generics import RetrieveAPIView, ListAPIView, CreateAPIView, ListCreateAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.db.models import Max
+from rest_framework import status
 
 from apps.restaurant.models import Restaurant, Menu
 from apps.restaurant import serializers
@@ -20,12 +21,17 @@ class RestaurantDetailView(RetrieveAPIView):
 
 
 class RestaurantCreateView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get_serializer(self):
+        return serializers.RestaurantCreateSerializer()
+
     def post(self, request):
         request.data['creator'] = request.user.id
         restaurant = serializers.RestaurantCreateSerializer(data=request.data)
         if restaurant.is_valid():
             restaurant.save()
-        return Response(status=201)
+        return Response(restaurant.data, status=status.HTTP_201_CREATED)
 
 
 class MenuListView(ListAPIView):
@@ -39,18 +45,32 @@ class MenuDetailView(RetrieveAPIView):
 
 
 class MenuUploadView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get_serializer(self):
+        return serializers.MenuUploadSerializer(many=True)
+
     def post(self, request):
-        for item in request.data:
-            item['restaurant'] = Restaurant.objects.get(
-                creator__pk=request.user.id
-            ).pk
-            menu = serializers.MenuUploadSerializer(data=item)
-            if menu.is_valid():
-                menu.save()
-        return Response(status=201)
+        try:
+            for item in request.data:
+                item['restaurant'] = Restaurant.objects.get(
+                    creator__pk=request.user.id
+                ).pk
+                menu = serializers.MenuUploadSerializer(data=item)
+                if menu.is_valid():
+                    menu.save()
+        except KeyError as e:
+            return Response({
+                "message": "Server problem",
+                "error": repr(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': "Uploaded"}, status=status.HTTP_201_CREATED)
 
 
 class GetTodayMenus(APIView):
+    def get_serializer(self):
+        return serializers.MenuListSerializer()
+
     def get(self, request):
         menus = Menu.objects.filter(date=datetime.date.today())
         serializer = serializers.MenuListSerializer(menus, many=True)
